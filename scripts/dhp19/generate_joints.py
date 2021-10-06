@@ -6,6 +6,8 @@ from os.path import join
 import h5py
 import numpy as np
 from tqdm import tqdm
+import sys
+sys.path.insert(0, "../")
 
 from experimenting import utils
 from experimenting.dataset.core import DHP19Core
@@ -18,7 +20,7 @@ if __name__ == '__main__':
     parser.add_argument('--p_matrices_dir', type=str, help='P_matrices DHP19')
     args = parser.parse_args()
 
-    out_dir = args.outdir
+    out_dir = args.out_dir
     input_dir = args.input_dir
 
     p_mat_dir = args.p_matrices_dir
@@ -40,11 +42,16 @@ if __name__ == '__main__':
     for x_path in tqdm(x_paths):
 
         filename = os.path.basename(x_path)
-        info = DHP19Core.get_frame_info(filename)
+        # print(filename)
+        sub = filename[filename.find('S') + 1 : filename.find('S') + 4].split('_')[0]
+        session = int(filename[filename.find('session') + len('session')])
+        mov = int(filename[filename.find('mov') + len('mov')])
 
-        sub = info['subject']
-        session = info['session']
-        mov = info['mov']
+        # info = DHP19Core.get_frame_info(filename)
+
+        # sub = info['subject']
+        # session = info['session']
+        # mov = info['mov']
         out_label_path = os.path.join(
             out_dir,
             "S{}_session_{}_mov_{}_frame_".format(sub, session, mov) + "{}_cam_{}_2dhm",

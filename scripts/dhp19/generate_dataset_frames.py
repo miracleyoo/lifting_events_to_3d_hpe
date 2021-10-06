@@ -9,11 +9,12 @@ import sys
 
 import h5py
 import numpy as np
+# sys.path.append('../experimenting.dataset')
 
-from ..dataset.core import DHP19Core
 
 sys.path.insert(0, "../")
-
+from experimenting.dataset.core import DHP19Core 
+# from experimenting.datase.core import DHP19Core
 
 def convert_raw_frame_and_save(x_path, out_dir):
     filename = os.path.basename(x_path)
@@ -47,12 +48,12 @@ if __name__ == "__main__":
     parser.add_argument('--out_dir', nargs='+', help='Output dir path')
     args = parser.parse_args()
 
-    root_dir = args.input_dir
-    out_dir = args.out_dir
-
+    root_dir = args.input_dir if type(args.input_dir) is not list else args.input_dir[0]
+    out_dir = args.out_dir if type(args.out_dir) is not list else args.out_dir[0]
     x_paths = sorted(glob.glob(os.path.join(root_dir, "*events.h5")))
+    print(root_dir, len(x_paths))
     n_files = len(x_paths)
 
     for x_path in x_paths:
-        x_h5 = h5py.File(x_path, 'r')
-        convert_raw_frame_and_save(x_h5, out_dir)
+        # x_h5 = h5py.File(x_path, 'r')
+        convert_raw_frame_and_save(x_path, out_dir)

@@ -1,0 +1,5 @@
+type: StepLR
+params:
+  step_size: 10
+  gamma: 0.1
+    

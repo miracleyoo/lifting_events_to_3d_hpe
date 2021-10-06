@@ -11,9 +11,9 @@
 
    % Set the paths of code repository folder, data folder and output folder
    % where to generate files of accumulated events.
-   rootCodeFolder = '/home/gianscarpe/dev/event-based-monocular-hpe/scripts/dhp19/generate_DHP19'; % root directory of the git repo.
-   rootDataFolder = '/data/rslsync/Resilio Sync/DHP19'; % root directory of the data downloaded from resiliosync.
-   outDatasetFolder = '/data/gscarpellini/new_vowel';
+   rootCodeFolder = 'E:\GitHub\lifting_events_to_3d_hpe\scripts\dhp19\generate_DHP19'; % root directory of the git repo.
+   rootDataFolder = 'D:\Resilio Folder'; % root directory of the data downloaded from resiliosync.
+   outDatasetFolder = 'D:\Dataset\DVS\dhp19\new_vowel';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -288,7 +288,6 @@ elseif (numSpecialEvents == 2) || (numSpecialEvents == 4)
                 disp(strcat('Tot num of events in all cameras: ', num2str(eventsPerFrame*nbcam)));
                 % Manually choose the function you want to use to generate constant-count or spatio-temporal frames
                 ExtractEventsToFramesAndMeanLabels( ...
-                %ExtractEventsToVoxelAndMeanLabels( ...
                     fileID, ...
                     aedat, ...
                     events, ...

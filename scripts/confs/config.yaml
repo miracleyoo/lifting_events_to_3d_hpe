@@ -1,0 +1,52 @@
+defaults:
+  - _self_
+  - optimizer: adam
+  - lr_scheduler: step_lr
+  - dataset: constantcount_dhp19 
+  #constantcount_h3m
+  - loss: multipixelwise
+  - augmentation: no_aug
+  - training: margipose
+  # - 
+  - override hydra/help: help
+
+# hydra: standard
+gpus: [0]
+epochs: 100
+early_stopping: 10
+batch_size: 32
+num_workers: 16
+train_val_split: 0.8
+
+debug: false
+root_dir: D:\Dataset\DVS\dhp19\experiments
+# /mnt/d/Dataset/DVS/dhp19/experiments
+# /data/gscarpellini/exps
+model_zoo: D:\Dataset\DVS\dhp19\pretrained_model
+# /mnt/d/Dataset/DVS/dhp19/pretrained_model
+#/data/gscarpellini/model_zoo
+project_name: event_hpe
+resume: false
+result_file: results.json 
+load_path:
+accelerator: ddp
+
+exp_dir: exps_${training.module}/${dataset.partition}
+exp_name: ${now:%m-%d-%H-%M}_exp_${training.model}_pretrained_${training.pretrained}
+
+hydra:
+  output_subdir: reproduce
+  job:
+    config:
+      # configuration for the ${hydra.job.override_dirname} runtime variable
+      override_dirname:
+        kv_sep: '_'
+        item_sep: '__'
+        exclude_keys: []
+  sweep:
+    dir: ${root_dir}/exps/${dataset.name}/${exp_dir}
+    subdir: ${exp_name}
+    
+  run:
+    dir: ${hydra.sweep.dir}/${hydra.sweep.subdir}
+      

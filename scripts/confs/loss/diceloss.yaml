@@ -1,0 +1,3 @@
+loss:
+  _target_: segmentation_models_pytorch.utils.losses.DiceLoss
+  # class: 

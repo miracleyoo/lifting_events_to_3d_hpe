@@ -9,7 +9,8 @@ from experimenting.utils.trainer import HydraTrainer
 logging.basicConfig(level=logging.INFO)
 
 
-@hydra.main(config_path='../confs/train/config.yaml')
+# @hydra.main(config_path='../confs/train/config.yaml')
+@hydra.main(config_path="./confs", config_name="config")
 def main(cfg: DictConfig) -> None:
     trainer = HydraTrainer(cfg)
     trainer.fit()

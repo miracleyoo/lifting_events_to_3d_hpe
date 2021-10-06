@@ -1,0 +1,5 @@
+loss:
+  # cls: 
+  params:
+    _target_: torch.nn.MSELoss
+    reduction: mean
