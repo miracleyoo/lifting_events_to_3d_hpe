@@ -1,5 +1,5 @@
-loss:
+# loss:
   # cls: 
-  params:
-    _target_: torch.nn.SmoothL1Loss
-    reduction: mean
+  # params:
+_target_: torch.nn.SmoothL1Loss
+reduction: mean

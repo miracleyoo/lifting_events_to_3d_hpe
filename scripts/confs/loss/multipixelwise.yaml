@@ -1,5 +1,5 @@
 # cls: 
-params:
-  _target_: experimenting.models.losses.MultiPixelWiseLoss
-  reduction: mask_mean
-  divergence: True
+# params:
+_target_: experimenting.models.losses.MultiPixelWiseLoss
+reduction: mask_mean
+divergence: True

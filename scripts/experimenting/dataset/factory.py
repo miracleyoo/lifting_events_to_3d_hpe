@@ -41,6 +41,7 @@ class BaseDataFactory(ABC):
 
     def get_dataset(self, indexes, augmentation_config, **kwargs) -> Dataset:
         preprocess = get_augmentation(augmentation_config)
+        # print(preprocess,'\n\n\n\n\n!!!!!!!!!!!!!!!!!!!!!!!')
         return self.dataset_task(
             dataset=self.core_dataset, indexes=indexes, transform=preprocess, **kwargs
         )

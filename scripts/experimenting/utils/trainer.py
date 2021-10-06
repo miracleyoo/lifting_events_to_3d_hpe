@@ -31,7 +31,6 @@ class HydraTrainer:
 
         self.cfg = cfg
         self.core = hydra.utils.instantiate(cfg.dataset)
-        # print('\n\n', type(self.core), self.core)#.avg_torso_length)
 
         if (
             "load_path" in cfg

@@ -15,7 +15,8 @@ gpus: [0]
 epochs: 100
 early_stopping: 10
 batch_size: 32
-num_workers: 16
+num_workers: 0
+#16
 train_val_split: 0.8
 
 debug: false

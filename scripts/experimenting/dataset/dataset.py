@@ -78,7 +78,8 @@ class BaseDataset(Dataset):
             else:
                 augmented = self.transform(image=x)
                 x = augmented["image"]
-        return x, y
+        # print(type(x), type(y), y, '\n\n\n\n\n\n\n!!!!!!!!!!!!!!')
+        return x.float(), y
 
 
 class ClassificationDataset(BaseDataset):

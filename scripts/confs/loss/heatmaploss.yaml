@@ -1,5 +1,5 @@
-loss:
+# loss:
   # class: 
-  params:
-    _target_: experimenting.models.losses.HeatmapLoss
-    reduction: mask_mean
+  # params:
+_target_: experimenting.models.losses.HeatmapLoss
+reduction: mask_mean

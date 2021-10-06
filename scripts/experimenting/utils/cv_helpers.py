@@ -113,8 +113,8 @@ def _project_xyz_onto_image(xyz, p_mat, width, height):
     # v = height - v
 
     # pixel coordinates
-    u = u.astype(np.int32)
-    v = v.astype(np.int32)
+    u = u.astype(int)
+    v = v.astype(int)
 
     mask = np.ones(u.shape).astype(np.float32)
     mask[np.isnan(u)] = 0
