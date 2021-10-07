@@ -121,7 +121,9 @@ def get_training_params(cfg: DictConfig):
     log_profiler = os.path.join(exp_path, "profile.txt")
     os.makedirs(checkpoint_dir, exist_ok=True)
     ckpt_cb = ModelCheckpoint(
-        filepath=os.path.join(checkpoint_dir, "{epoch:02d}-{val_loss:.2f}")
+        dirpath=checkpoint_dir,
+        filename="{epoch:02d}-{val_loss:.2f}"
+        # filepath=os.path.join(checkpoint_dir, "{epoch:02d}-{val_loss:.2f}")
     )
 
     profiler = pl.profiler.AdvancedProfiler(log_profiler)

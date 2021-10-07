@@ -6,7 +6,7 @@ scikit-video
 scipy
 torch>1
 kornia
-hydra-core==1.0.6
+hydra-core==1.1
 omegaconf
 opencv-python
 pytorch-lightning==1.1.6
