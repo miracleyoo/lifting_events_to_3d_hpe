@@ -4,6 +4,8 @@ DatasetCore
 """
 
 import os
+import yaml
+import os.path as op
 from abc import ABC, abstractmethod
 
 import cv2
@@ -23,26 +25,22 @@ class SadCore(BaseCore):
     heatmaps, 2D joints, 3D joints
     """
 
-    MOVEMENTS_PER_SESSION = {1: 8, 2: 6, 3: 6, 4: 6, 5: 7}
     MAX_WIDTH = 346
     MAX_HEIGHT = 260
     N_JOINTS = 13
-    N_MOVEMENTS = 33
-    DEFAULT_TEST_SUBJECTS = [1, 2, 3, 4, 5]
-    DEFAULT_TEST_VIEW = [1, 2]
-    TORSO_LENGTH = 453.5242317
+    DEFAULT_TEST_SUBJECTS = [0]
+    DEFAULT_TEST_VIEW = [0]
+    TORSO_LENGTH = 50 #! Not sure the unit here, using m
 
     def __init__(
         self,
         name,
-        data_dir,
-        cams,
-        movements,
-        joints_dir,
-        n_classes,
-        n_joints,
+        root,
+        # data_dir,
+        # joints_dir,
         partition,
-        n_channels,
+        n_joints=13,
+        n_channels=1,
         test_subjects=None,
         test_cams=None,
         avg_torso_length=TORSO_LENGTH,
@@ -50,9 +48,15 @@ class SadCore(BaseCore):
         **kwargs,
     ):
         super(SadCore, self).__init__(name, partition)
-        self.file_paths = SadCore._get_file_paths_with_cam_and_mov(
-            data_dir, cams, movements
-        )
+        data_dir = op.join(root, 'frames')
+        joints_dir = op.join(root, 'labels')
+        config_path = op.join(root, 'config.yaml')
+        with open(config_path, 'r') as f:
+            data_config = yaml.load(f, Loader=yaml.FullLoader)
+        
+        self.train_paths, self.test_paths = SadCore._get_file_paths(data_dir, data_config)
+        self.file_paths = self.train_paths
+        self.file_paths.extend(self.test_paths)
 
         self.in_shape = (SadCore.MAX_HEIGHT, SadCore.MAX_WIDTH)
         self.n_channels = n_channels
@@ -64,8 +68,8 @@ class SadCore(BaseCore):
             SadCore.get_label_from_filename(x_path) for x_path in self.file_paths
         ]
 
-        self.frames_info = [SadCore.get_frame_info(x) for x in self.file_paths]
-        self.joints = self._retrieve_data_files(joints_dir, f"_2dhm.npz") # retrieve content of files
+        # self.frames_info = [SadCore.get_frame_info(x) for x in self.file_paths]
+        self.joints = self._retrieve_data_files(joints_dir) # retrieve content of files
 
         self.test_subjects = test_subjects
         if test_cams is None:
@@ -73,44 +77,30 @@ class SadCore(BaseCore):
         else:
             self.test_cams = test_cams
 
-
+    # X
     @staticmethod
     def get_standard_path(subject, session, movement, frame, cam, postfix=""):
         return "S{}_session_{}_mov_{}_frame_{}_cam_{}{}.npy".format(
             subject, session, movement, frame, cam, postfix
         )
 
+    # √
     @staticmethod
     def load_frame(path):
-        ext = os.path.splitext(path)[1]
-        if ext == ".mat":
-            x = SadCore._load_matlab_frame(path)
-        elif ext == ".npy":
-            x = np.load(path, allow_pickle=True) / 255.0
-            if len(x.shape) == 2:
-                x = np.expand_dims(x, -1)
-        return x
+        x = np.load(path, allow_pickle=True) / 255.0
+        if len(x.shape) == 2:
+            x = np.expand_dims(x, -1)
+        return x.astype(float)
 
-    @staticmethod
-    def _load_matlab_frame(path):
-        """
-        Matlab files contain voxelgrid frames and must be loaded properly.
-        Information is contained respectiely in attributes: V1n, V2n, V3n, V4n
-
-        Examples:
-          S1_.mat
-
-        """
-        info = SadCore.get_frame_info(path)
-        x = np.swapaxes(io.loadmat(path)[f'V{info["cam"] + 1}n'], 0, 1)
-        return x
-
+    # √
     def get_frame_from_id(self, idx):
         return SadCore.load_frame(self.file_paths[idx])
 
+    # N
     def get_label_from_id(self, idx):
         return self.classification_labels[idx]
-
+    
+    # √
     def get_joint_from_id(self, idx):
         joints_file = np.load(self.joints[idx])
         xyz = joints_file["xyz"].swapaxes(0, 1)
@@ -118,31 +108,29 @@ class SadCore(BaseCore):
         extrinsic_matrix = torch.tensor(joints_file["M"])
         return Skeleton(xyz), intrinsic_matrix, extrinsic_matrix
 
+    # N
     def get_heatmap_from_id(self, idx):
         hm_path = self.heatmaps[idx]
         return load_heatmap(hm_path, self.N_JOINTS)
 
+    # √
     @staticmethod
-    def _get_file_paths_with_cam_and_mov(data_dir, cams=None, movs=None):
-        if cams is None:
-            cams = [3]
+    def _get_file_paths(data_dir, data_config):
+        def get_paths_part(part='train'):
+            settings = data_config[part]
+            file_paths = np.array(get_file_paths(data_dir, extensions=[".npy"]))
+            # print(data_dir, settings, file_paths[0])
 
-        file_paths = np.array(get_file_paths(data_dir, extensions=[".npy", ".mat"]))
-        cam_mask = np.zeros(len(file_paths))
+            for setting in settings:
+                # print(setting, len(file_paths))
+                file_paths = [p for p in file_paths if setting[0] in p and setting[1] in p]
+            return file_paths
+        
+        train_paths = get_paths_part('train')
+        test_paths  = get_paths_part('test')
+        return train_paths, test_paths
 
-        for c in cams:
-            cam_mask += [f"cam_{c}" in x for x in file_paths]
-
-        file_paths = file_paths[cam_mask > 0]
-        if movs is not None:
-            mov_mask = [
-                SadCore.get_label_from_filename(x) in movs for x in file_paths
-            ]
-
-            file_paths = file_paths[mov_mask]
-
-        return file_paths
-
+    # X
     @staticmethod
     def get_frame_info(filename):
         filename = os.path.splitext(os.path.basename(filename))[0]
@@ -159,56 +147,44 @@ class SadCore(BaseCore):
 
         return result
 
+    # √
     def get_test_subjects(self):
         return self.test_subjects
 
+    # √
     def get_test_view(self):
         return self.test_cams
 
-
+    # X
     @staticmethod
     def _get_info_from_string(filename, info, split_symbol="_"):
         # return int(filename[filename.find(info) :].split(split_symbol)[0].replace(info, ''))
         return int(filename[filename.find(info) :].split(split_symbol)[1])
 
+    # √ Used for classification task, all return 0 here.
     @staticmethod
     def get_label_from_filename(filepath) -> int:
-        """Given the filepath, return the correspondent movement label (range [0, 32])
+        return 0
 
-        Args:
-            filepath (str): frame absolute filepath
-
-        Returns:
-            Frame label
-
-        Examples:
-            >>> DHP19Core.get_label_from_filename("S1_session_2_mov_1_frame_249_cam_2.npy")
-            8
-
-        """
-
-        label = 0
-        info = SadCore.get_frame_info(filepath)
-
-        for i in range(1, info["session"]):
-            label += SadCore.MOVEMENTS_PER_SESSION[i]
-
-        return label + info["mov"] - 1  # label in range [0, max_label)
-
-    def _retrieve_data_files(self, labels_dir, suffix):
+    # √
+    def _retrieve_data_files(self, labels_dir):
         labels_hm = [
             os.path.join(
-                labels_dir, os.path.basename(x).split(".")[0] + suffix
+                labels_dir, os.path.basename(x).split(".")[0] + '.npz'
             )
             for x in self.file_paths
         ]
         return labels_hm
 
+    # X
     def train_partition_function(self, x):
-        return self.frames_info[x]['subject'] not in self.test_subjects and self.frames_info[x]['cam'] not in self.test_cams
-
-
-
+        return True if x<len(self.train_paths) else False
+        # return self.frames_info[x]['subject'] not in self.test_subjects and self.frames_info[x]['cam'] not in self.test_cams
+    
+    # Test partition_function
+    def _partition_function(self, x):
+        return True if x>=len(self.train_paths) else False
+# N
 def load_heatmap(path, n_joints):
     joints = np.load(path)
     h, w = joints.shape
@@ -221,7 +197,7 @@ def load_heatmap(path, n_joints):
 
     return y
 
-
+# √
 def decay_heatmap(heatmap, sigma2=10):
     """
 

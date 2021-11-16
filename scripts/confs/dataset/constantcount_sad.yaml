@@ -2,17 +2,17 @@
 # dataset:
 _target_: experimenting.dataset.core.SadCore
 name: timecount_dhp19
-base_path: D:\Dataset\DVS\dhp19\time_count_dataset
+root: J:\datasets\DVS\mmd\time_count_dataset 
+# D:\Dataset\DVS\dhp19\time_count_dataset
 # /mnt/d/Dataset/DVS/dhp19/time_count_dataset
-data_dir: ${dataset.base_path}/frames
-joints_dir: ${dataset.base_path}/labels
+# data_dir: ${dataset.root}/frames
+# joints_dir: ${dataset.root}/labels
 
-n_classes: 33
-test_subjects: [1, 2, 3, 4, 5]
-movements: 
-cams: [0,1,2,3]
-test_cams: [1, 2]
+test_subjects: [0]
+cams: [0]
+test_cams: [0]
 n_channels: 1
 n_joints: 13
 partition: cross-subject
-avg_torso_length: 500
+#! Potential Problems here! Unit: m
+avg_torso_length: 50

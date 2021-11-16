@@ -12,6 +12,7 @@ Provided:
 
 import albumentations
 import torch
+import numpy as np
 from kornia import geometry
 from torch.utils.data import Dataset
 
@@ -65,6 +66,12 @@ class BaseDataset(Dataset):
         idx = self.x_indexes[idx]
         if torch.is_tensor(idx):
             idx = idx.tolist()
+        
+        def to_float(x):
+            if isinstance(x, np.ndarray):
+                return x.astype(float)
+            else:
+                return x.float()
 
         x = self._get_x(idx)
         y = self._get_y(idx)
@@ -81,7 +88,7 @@ class BaseDataset(Dataset):
         # print(type(x), type(y), y, '\n\n\n\n\n\n\n!!!!!!!!!!!!!!')
         # return x.float(), y
         # return x.astype(float), y
-        return x, y
+        return to_float(x), y
 
 
 class ClassificationDataset(BaseDataset):

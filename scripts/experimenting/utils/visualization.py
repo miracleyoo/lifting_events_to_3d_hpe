@@ -31,7 +31,7 @@ def plot_heatmap(img):
     plt.show()
 
 
-def plot_skeleton_3d(skeleton_gt, skeleton_pred=None):
+def plot_skeleton_3d(skeleton_gt, skeleton_pred=None, limits=None):
     """
         Args:
            M: extrinsic matrix as tensor of shape 4x3
@@ -40,9 +40,9 @@ def plot_skeleton_3d(skeleton_gt, skeleton_pred=None):
         """
 
     ax = _get_3d_ax()
-    skeleton_gt.plot_3d(ax, c='red')
+    skeleton_gt.plot_3d(ax, c='red', limits=limits)
     if skeleton_pred is not None:
-        skeleton_pred.plot_3d(ax, c='blue')
+        skeleton_pred.plot_3d(ax, c='blue', limits=limits)
 
 
 def plot_2d_from_3d(dvs_frame, gt_skeleton, p_mat, pred_skeleton=None):

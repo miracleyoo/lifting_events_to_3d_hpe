@@ -2,7 +2,7 @@ defaults:
   - _self_
   - optimizer: adam
   - lr_scheduler: step_lr
-  - dataset: constantcount_dhp19 
+  - dataset: constantcount_sad
   #constantcount_h3m
   - loss: multipixelwise
   - augmentation: no_aug
@@ -14,16 +14,18 @@ defaults:
 gpus: [0]
 epochs: 100
 early_stopping: 10
-batch_size: 32
+batch_size: 8
+#32
 num_workers: 0
 #16
 train_val_split: 0.8
 
 debug: false
-root_dir: D:\Dataset\DVS\dhp19\experiments
+root_dir: J:\datasets\DVS\mmd\experiments
+# D:\Dataset\DVS\dhp19\experiments
 # /mnt/d/Dataset/DVS/dhp19/experiments
 # /data/gscarpellini/exps
-model_zoo: D:\Dataset\DVS\dhp19\pretrained_model
+model_zoo: J:\datasets\DVS\dhp19\pretrained_model
 # /mnt/d/Dataset/DVS/dhp19/pretrained_model
 #/data/gscarpellini/model_zoo
 project_name: event_hpe

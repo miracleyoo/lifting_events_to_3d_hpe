@@ -19,7 +19,7 @@ class BaseCore(ABC):
     def __init__(self, name, partition):
         # self._set_partition_function(partition)
         self.partition = partition
-        self._partition_function = None
+        # self._partition_function = None #! Remember to uncomment this line when trained on original dataset!
         self.name = name
 
     # def _set_partition_function(self, partition_param):
@@ -34,6 +34,7 @@ class BaseCore(ABC):
     @property
     def partition_function(self):
         if self._partition_function is not None:
+            # print("YEAHHHHHHHHHHHHHHHHHHHH\n\n\n\n")
             return self._partition_function
         else:
             if self.partition is None:
