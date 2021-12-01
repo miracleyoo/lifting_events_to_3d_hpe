@@ -1,3 +1,4 @@
+from genericpath import isfile
 import glob
 import os
 
@@ -19,7 +20,8 @@ def load_model(load_path: str, module: str, **kwargs):
         Lightning module loaded from checkpoint, if exists
     """
     print("Loading training")
-    load_path = get_checkpoint_path(load_path)
+    if not load_path.endswith('ckpt'):
+        load_path = get_checkpoint_path(load_path)
     print("Loading from ... ", load_path)
 
     if os.path.exists(load_path):

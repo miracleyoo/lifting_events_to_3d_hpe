@@ -3,22 +3,23 @@ defaults:
   - optimizer: adam
   - lr_scheduler: step_lr
   - dataset: constantcount_sad
-  #constantcount_h3m
+  #constantcount_h3m constantcount_sad constantcount_dhp19
   - loss: multipixelwise
   - augmentation: no_aug
-  - training: margipose
-  # - 
+  - training: sadpose
+  # sadpose margipose
   - override hydra/help: help
 
 # hydra: standard
 gpus: [0]
 epochs: 100
 early_stopping: 10
-batch_size: 8
+batch_size: 16
 #32
 num_workers: 0
 #16
 train_val_split: 0.8
+train_shuffle: false
 
 debug: false
 root_dir: J:\datasets\DVS\mmd\experiments

@@ -62,6 +62,7 @@ class HydraTrainer:
             aug_train_config=cfg.augmentation.augmentation_train,
             aug_test_config=cfg.augmentation.augmentation_test,
             train_val_split=cfg.train_val_split if "train_val_split" in cfg else 0.8,
+            train_shuffle=cfg.train_shuffle
         )
 
     def get_raw_test_outputs(self):

@@ -174,7 +174,8 @@ class AutoEncoderConstructor(BaseDataFactory):
 
 
 def _split_set(data_indexes, split_at=0.8):
-    np.random.shuffle(data_indexes)
+    ################# TODO: UNCOMMENT this when train original
+    # np.random.shuffle(data_indexes)
     n_data_for_training = len(data_indexes)
     train_split = int(split_at * n_data_for_training)
     train_indexes = data_indexes[:train_split]

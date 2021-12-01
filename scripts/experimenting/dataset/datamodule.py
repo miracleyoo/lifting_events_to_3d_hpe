@@ -15,6 +15,7 @@ class DataModule(pl.LightningDataModule):
         batch_size: int,
         num_workers: int,
         train_val_split: float = 0.8,
+        train_shuffle=True
     ):
         super().__init__()
         self.core = core
@@ -25,6 +26,7 @@ class DataModule(pl.LightningDataModule):
         self.aug_train_config = aug_train_config
         self.aug_test_config = aug_test_config
         self.train_val_split = train_val_split
+        self.train_shuffle = train_shuffle
 
     def prepare_data(self, *args, **kwargs):
         pass
@@ -48,7 +50,11 @@ class DataModule(pl.LightningDataModule):
         )
 
     def train_dataloader(self):
-        return get_dataloader(self.train_dataset, self.batch_size, self.num_workers)
+        return get_dataloader(
+            self.train_dataset, 
+            self.batch_size, 
+            shuffle=self.train_shuffle,
+            num_workers=self.num_workers)
 
     def val_dataloader(self):
         return get_dataloader(

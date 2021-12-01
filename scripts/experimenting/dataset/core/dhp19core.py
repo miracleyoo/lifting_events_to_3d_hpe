@@ -72,6 +72,7 @@ class DHP19Core(BaseCore):
             self.test_cams = DHP19Core.DEFAULT_TEST_VIEW
         else:
             self.test_cams = test_cams
+        self._partition_function = None
 
 
     @staticmethod

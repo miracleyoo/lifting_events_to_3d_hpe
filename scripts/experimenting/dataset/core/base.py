@@ -19,7 +19,8 @@ class BaseCore(ABC):
     def __init__(self, name, partition):
         # self._set_partition_function(partition)
         self.partition = partition
-        # self._partition_function = None #! Remember to uncomment this line when trained on original dataset!
+        if hasattr(self, 'n_channels'):
+            self._partition_function = None #! Remember to uncomment this line when trained on original dataset!
         self.name = name
 
     # def _set_partition_function(self, partition_param):

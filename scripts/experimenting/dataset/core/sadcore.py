@@ -18,7 +18,6 @@ from experimenting.utils import Skeleton
 from ..utils import get_file_paths
 from .base import BaseCore
 
-
 class SadCore(BaseCore):
     """
     DHP19 dataset core class. It provides implementation to load frames,
@@ -39,6 +38,8 @@ class SadCore(BaseCore):
         # data_dir,
         # joints_dir,
         partition,
+        batch_size,
+        config_name='config.yaml',
         n_joints=13,
         n_channels=1,
         test_subjects=None,
@@ -48,13 +49,16 @@ class SadCore(BaseCore):
         **kwargs,
     ):
         super(SadCore, self).__init__(name, partition)
+        self.batch_size = batch_size
+        # print(batch_size)
         data_dir = op.join(root, 'frames')
         joints_dir = op.join(root, 'labels')
-        config_path = op.join(root, 'config.yaml')
+        config_path = op.join(root, config_name)
+        # print(data_dir, '!!!\n\n')
         with open(config_path, 'r') as f:
             data_config = yaml.load(f, Loader=yaml.FullLoader)
         
-        self.train_paths, self.test_paths = SadCore._get_file_paths(data_dir, data_config)
+        self.train_paths, self.test_paths = self._get_file_paths(data_dir, data_config)
         self.file_paths = self.train_paths
         self.file_paths.extend(self.test_paths)
 
@@ -64,9 +68,9 @@ class SadCore(BaseCore):
 
         self.avg_torso_length = avg_torso_length
         
-        self.classification_labels = [
-            SadCore.get_label_from_filename(x_path) for x_path in self.file_paths
-        ]
+        # self.classification_labels = [
+        #     SadCore.get_label_from_filename(x_path) for x_path in self.file_paths
+        # ]
 
         # self.frames_info = [SadCore.get_frame_info(x) for x in self.file_paths]
         self.joints = self._retrieve_data_files(joints_dir) # retrieve content of files
@@ -94,11 +98,12 @@ class SadCore(BaseCore):
 
     # √
     def get_frame_from_id(self, idx):
+        # print(self.file_paths[idx])
         return SadCore.load_frame(self.file_paths[idx])
 
     # N
-    def get_label_from_id(self, idx):
-        return self.classification_labels[idx]
+    # def get_label_from_id(self, idx):
+    #     return self.classification_labels[idx]
     
     # √
     def get_joint_from_id(self, idx):
@@ -114,38 +119,48 @@ class SadCore(BaseCore):
         return load_heatmap(hm_path, self.N_JOINTS)
 
     # √
-    @staticmethod
-    def _get_file_paths(data_dir, data_config):
+    # @staticmethod
+    def _get_file_paths(self, data_dir, data_config):
         def get_paths_part(part='train'):
             settings = data_config[part]
+            # print(settings)
             file_paths = np.array(get_file_paths(data_dir, extensions=[".npy"]))
             # print(data_dir, settings, file_paths[0])
 
+            path_filtered = []
             for setting in settings:
                 # print(setting, len(file_paths))
-                file_paths = [p for p in file_paths if setting[0] in p and setting[1] in p]
-            return file_paths
+                files_selected = [p for p in file_paths if setting[0] in p and setting[1] in p]
+                files_selected = sorted(files_selected, key=lambda x:int(op.split(x)[1].split('_')[-2]))
+                rest=len(files_selected)%128
+                path_filtered.extend(files_selected[:-rest])
+            
+            path_filtered = shuffle_arr_by_block(path_filtered, self.batch_size)
+            return path_filtered
         
         train_paths = get_paths_part('train')
         test_paths  = get_paths_part('test')
+        # print(train_paths[:20])
+        # print(len(train_paths), len(test_paths))
         return train_paths, test_paths
 
     # X
     @staticmethod
     def get_frame_info(filename):
-        filename = os.path.splitext(os.path.basename(filename))[0]
+        pass
+    #     filename = os.path.splitext(os.path.basename(filename))[0]
 
-        result = {
-            "subject": int(
-                filename[filename.find("S") + 1 : filename.find("S") + 4].split("_")[0]
-            ),
-            "session": int(SadCore._get_info_from_string(filename, "session")),
-            "mov": int(SadCore._get_info_from_string(filename, "mov")),
-            "cam": int(SadCore._get_info_from_string(filename, "cam")),
-            "frame": SadCore._get_info_from_string(filename, "frame"),
-        }
+    #     result = {
+    #         "subject": int(
+    #             filename[filename.find("S") + 1 : filename.find("S") + 4].split("_")[0]
+    #         ),
+    #         "session": int(SadCore._get_info_from_string(filename, "session")),
+    #         "mov": int(SadCore._get_info_from_string(filename, "mov")),
+    #         "cam": int(SadCore._get_info_from_string(filename, "cam")),
+    #         "frame": SadCore._get_info_from_string(filename, "frame"),
+    #     }
 
-        return result
+    #     return result
 
     # √
     def get_test_subjects(self):
@@ -214,3 +229,20 @@ def decay_heatmap(heatmap, sigma2=10):
     heatmap = cv2.GaussianBlur(heatmap, (0, 0), sigma2)
     heatmap /= np.max(heatmap)  # keep the max to 1
     return heatmap
+
+def shuffle_arr_by_block(arr, block_size):
+    if type(arr) != np.ndarray:
+        flag = True
+        arr = np.array(arr)
+    else:
+        flag = False
+    block_num = len(arr)//block_size
+    keyidxs = np.arange(block_num)
+    np.random.shuffle(keyidxs)
+    new_idxs = np.repeat(keyidxs, block_size) * block_size
+    addons = np.tile(np.arange(block_size), block_num)
+    new_idxs+=addons
+    res = arr[new_idxs]
+    if flag:
+        res = res.tolist()
+    return res
