@@ -6,7 +6,7 @@ defaults:
   #constantcount_h3m constantcount_sad constantcount_dhp19
   - loss: multipixelwise
   - augmentation: no_aug
-  - training: sadpose
+  - training: margipose
   # sadpose margipose
   - override hydra/help: help
 
@@ -22,11 +22,14 @@ train_val_split: 0.8
 train_shuffle: false
 
 debug: false
-root_dir: J:\datasets\DVS\mmd\experiments
+root_root: /home/miracle/kirito/aico/datasets/DVS
+root_dir: ${root_root}/mmd/experiments
+# J:\datasets\DVS\mmd\experiments
 # D:\Dataset\DVS\dhp19\experiments
 # /mnt/d/Dataset/DVS/dhp19/experiments
 # /data/gscarpellini/exps
-model_zoo: J:\datasets\DVS\dhp19\pretrained_model
+model_zoo: ${root_root}/dhp19/pretrained_model
+# J:\datasets\DVS\dhp19\pretrained_model
 # /mnt/d/Dataset/DVS/dhp19/pretrained_model
 #/data/gscarpellini/model_zoo
 project_name: event_hpe

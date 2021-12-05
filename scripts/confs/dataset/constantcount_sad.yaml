@@ -2,7 +2,8 @@
 # dataset:
 _target_: experimenting.dataset.core.SadCore
 name: timecount_dhp19
-root: J:\datasets\DVS\mmd\time_count_dataset
+root: ${root_root}/mmd/time_count_dataset
+# J:\datasets\DVS\mmd\time_count_dataset
 config_name: 'config_test.yaml'
 batch_size: ${batch_size}
 # D:\Dataset\DVS\dhp19\time_count_dataset

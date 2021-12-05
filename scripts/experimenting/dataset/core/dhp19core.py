@@ -5,6 +5,7 @@ DatasetCore
 
 import os
 from abc import ABC, abstractmethod
+import random
 
 import cv2
 import numpy as np
@@ -142,6 +143,8 @@ class DHP19Core(BaseCore):
 
             file_paths = file_paths[mov_mask]
 
+        ##### WARNING: MOVED FROM factory._split_set
+        random.shuffle(file_paths)
         return file_paths
 
     @staticmethod
